@@ -9,7 +9,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func TwitterWebHook(w http.ResponseWriter, r *http.Request) {
+func TwitterWebhook(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Yo!")
 
 	err := godotenv.Load()

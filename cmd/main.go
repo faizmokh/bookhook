@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/", hooks.TwitterWebHook)
+	http.HandleFunc("/", hooks.TwitterWebhook)
 	log.Println("Listening on localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
