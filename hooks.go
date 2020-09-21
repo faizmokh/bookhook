@@ -1,6 +1,7 @@
 package hooks
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -9,14 +10,13 @@ import (
 )
 
 func TwitterWebHook(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Yo!")
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("error: unable to load .env file")
 	}
 
-	accessToken := os.Getenv("ACCESS_TOKEN")
-	accessTokenSecret := os.Getenv("ACCESS_TOKEN_SECRET")
-
-	log.Println("ACCESS TOKEN: ", accessToken)
-	log.Println("ACCESS TOKEN SECRET: ", accessTokenSecret)
+	_ = os.Getenv("ACCESS_TOKEN")
+	_ = os.Getenv("ACCESS_TOKEN_SECRET")
 }
