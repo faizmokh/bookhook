@@ -1,13 +1,11 @@
 package hooks
 
 import (
-	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -43,16 +41,14 @@ func TwitterWebhook(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, string(responseJSON))
 	case "POST":
 		log.Println("listening to twitter account activity")
-		body, _ := ioutil.ReadAll(r.Body)
-
-		var prettyJSON bytes.Buffer
-		error := json.Indent(&prettyJSON, body, "", "\t")
-		if error != nil {
-			log.Println("JSON parse error: ", error)
+		var t Tweet
+		err := json.NewDecoder(r.Body).Decode(&t)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		log.Println(string(prettyJSON.Bytes()))
+		log.Println(t)
 	default:
 		fmt.Fprintln(w, "go away!")
 	}
