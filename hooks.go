@@ -48,7 +48,22 @@ func TwitterWebhook(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		log.Println(t)
+		e := t.TweetCreateEvents[0]
+		_, found := FindHashtag(e.Entities.Hashtags, "toread")
+		if !found {
+			log.Println("info: no #toread hash tag found")
+			return
+		}
+
+		key, found := FindUrl(e.Entities.Urls)
+		if found {
+			log.Println("info: entities expanded url is ", e.Entities.Urls[key].ExpandedURL)
+		}
+
+		key, found := FindUrl(e.QuotedStatus.Entities.Urls)
+		if found {
+			log.Println("info: quoted entities expanded url is", e.QuotedStatus.Entities.Urls[key].ExpandedURL)
+		}
 	default:
 		fmt.Fprintln(w, "go away!")
 	}
