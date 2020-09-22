@@ -13,6 +13,10 @@ import (
 	"os"
 )
 
+type CRC struct {
+	ResponseToken string `json:"response_token"`
+}
+
 func TwitterWebhook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
@@ -24,14 +28,18 @@ func TwitterWebhook(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		h := hmac.New(sha256.New, []byte(os.Getenv("ACCESS_TOKEN_SECRET")))
+		log.Println("info: crc token ", token)
+
+		h := hmac.New(sha256.New, []byte(os.Getenv("CONSUMER_SECRET")))
 		h.Write([]byte(token[0]))
 		encoded := base64.StdEncoding.EncodeToString(h.Sum(nil))
 
-		response := make(map[string]string)
-		response["response_token"] = "sha256=" + encoded
+		response := CRC{
+			ResponseToken: "sha256=" + encoded,
+		}
 
 		responseJSON, _ := json.Marshal(response)
+		log.Println("response: ", response)
 		fmt.Fprintf(w, string(responseJSON))
 	case "POST":
 		log.Println("listening to twitter account activity")
