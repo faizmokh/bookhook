@@ -60,7 +60,7 @@ func TwitterWebhook(w http.ResponseWriter, r *http.Request) {
 			log.Println("info: entities expanded url is ", e.Entities.Urls[key].ExpandedURL)
 		}
 
-		key, found := FindUrl(e.QuotedStatus.Entities.Urls)
+		key, found = FindUrl(e.QuotedStatus.Entities.Urls)
 		if found {
 			log.Println("info: quoted entities expanded url is", e.QuotedStatus.Entities.Urls[key].ExpandedURL)
 		}
