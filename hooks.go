@@ -1,14 +1,18 @@
 package hooks
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"html"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 type CRC struct {
@@ -51,7 +55,6 @@ func TwitterWebhook(w http.ResponseWriter, r *http.Request) {
 		e := t.TweetCreateEvents[0]
 		_, found := FindHashtag(e.Entities.Hashtags, "toread")
 		if !found {
-			log.Println("info: no #toread hash tag found")
 			return
 		}
 
@@ -64,7 +67,50 @@ func TwitterWebhook(w http.ResponseWriter, r *http.Request) {
 		if found {
 			log.Println("info: quoted entities expanded url is", e.QuotedStatus.Entities.Urls[key].ExpandedURL)
 		}
+
+		err = sendMessage(e.QuotedStatus.Entities.Urls[key].ExpandedURL)
+		if err != nil {
+			log.Fatal("error: unable to send message to telegram channel")
+		}
 	default:
 		fmt.Fprintln(w, "go away!")
 	}
+}
+
+func sendMessage(text string) error {
+	htmlText := fmt.Sprintf("<a href\\=\"%s\">%s</a>", html.EscapeString(text), html.EscapeString(text))
+	body := &SendMessage{
+		Text:                  htmlText,
+		ChatID:                os.Getenv("CHAT_ID"),
+		DisableWebPagePreview: false,
+		DisableNotification:   true,
+		ParseMode:             "HTML",
+	}
+	buf := new(bytes.Buffer)
+	json.NewEncoder(buf).Encode(body)
+
+	timeout := time.Duration(5 * time.Second)
+
+	client := &http.Client{
+		Timeout: timeout,
+	}
+
+	req, err := http.NewRequest("POST", fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", os.Getenv("BOT_TOKEN")), buf)
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+		return err
+	}
+
+	log.Fatalln(string(b))
+
+	return err
 }

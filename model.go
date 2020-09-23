@@ -59,3 +59,11 @@ type QuotedStatusPermalink struct {
 	Expanded string `json:"expanded"`
 	Display  string `json:"display"`
 }
+
+type SendMessage struct {
+	ChatID                string `json:"chat_id"`
+	Text                  string `json:"text"`
+	DisableWebPagePreview bool   `json:"disable_web_page_preview"`
+	DisableNotification   bool   `json:"disable_notification"`
+	ParseMode             string `json:"parse_mode"`
+}
