@@ -41,17 +41,24 @@ type URL struct {
 }
 
 type QuotedStatus struct {
-	CreatedAt     string   `json:"created_at"`
-	ID            float64  `json:"id"`
-	IDStr         string   `json:"id_str"`
-	Text          string   `json:"text"`
-	Truncated     bool     `json:"truncated"`
-	IsQuoteStatus bool     `json:"is_quote_status"`
-	QuoteCount    int64    `json:"quote_count"`
-	ReplyCount    int64    `json:"reply_count"`
-	RetweetCount  int64    `json:"retweet_count"`
-	FavoriteCount int64    `json:"favorite_count"`
-	Entities      Entities `json:"entities"`
+	CreatedAt     string         `json:"created_at"`
+	ID            float64        `json:"id"`
+	IDStr         string         `json:"id_str"`
+	Text          string         `json:"text"`
+	Truncated     bool           `json:"truncated"`
+	IsQuoteStatus bool           `json:"is_quote_status"`
+	QuoteCount    int64          `json:"quote_count"`
+	ReplyCount    int64          `json:"reply_count"`
+	RetweetCount  int64          `json:"retweet_count"`
+	FavoriteCount int64          `json:"favorite_count"`
+	Entities      Entities       `json:"entities"`
+	ExtendedTweet *ExtendedTweet `json:"extended_tweet,omitempty"`
+}
+
+type ExtendedTweet struct {
+	FullText         string   `json:"full_text"`
+	DisplayTextRange []int64  `json:"display_text_range"`
+	Entities         Entities `json:"entities"`
 }
 
 type QuotedStatusPermalink struct {

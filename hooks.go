@@ -60,17 +60,22 @@ func TwitterWebhook(w http.ResponseWriter, r *http.Request) {
 
 		key, found := FindUrl(e.Entities.Urls)
 		if found {
-			log.Println("info: entities expanded url is ", e.Entities.Urls[key].ExpandedURL)
+			log.Println("info: url is ", e.Entities.Urls[key].ExpandedURL)
+			err = sendMessage(e.Entities.Urls[key].ExpandedURL)
+			if err != nil {
+				log.Fatal("error: unable to send message to telegram channel")
+			}
+			return
 		}
 
-		key, found = FindUrl(e.QuotedStatus.Entities.Urls)
+		key, found = FindUrl(e.QuotedStatus.ExtendedTweet.Entities.Urls)
 		if found {
-			log.Println("info: quoted entities expanded url is", e.QuotedStatus.Entities.Urls[key].ExpandedURL)
-		}
-
-		err = sendMessage(e.QuotedStatus.Entities.Urls[key].ExpandedURL)
-		if err != nil {
-			log.Fatal("error: unable to send message to telegram channel")
+			log.Println("info: url is", e.QuotedStatus.ExtendedTweet.Entities.Urls[key].ExpandedURL)
+			err = sendMessage(e.QuotedStatus.ExtendedTweet.Entities.Urls[key].ExpandedURL)
+			if err != nil {
+				log.Fatal("error: unable to send message to telegram channel")
+			}
+			return
 		}
 	default:
 		fmt.Fprintln(w, "go away!")
@@ -90,7 +95,6 @@ func sendMessage(text string) error {
 	json.NewEncoder(buf).Encode(body)
 
 	timeout := time.Duration(5 * time.Second)
-
 	client := &http.Client{
 		Timeout: timeout,
 	}
@@ -101,7 +105,6 @@ func sendMessage(text string) error {
 	if err != nil {
 		return err
 	}
-
 	defer resp.Body.Close()
 
 	b, err := ioutil.ReadAll(resp.Body)
@@ -110,7 +113,7 @@ func sendMessage(text string) error {
 		return err
 	}
 
-	log.Fatalln(string(b))
+	log.Println("info: telegram response", string(b))
 
 	return err
 }
